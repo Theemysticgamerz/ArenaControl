@@ -1,0 +1,21 @@
+name: ArenaControl
+main: com.github.Brianetta.ArenaControl.ArenaControl
+version: 0.0.1
+author: Brian Ronald
+commands:
+    arenacontrol:
+        description: Controls arena floors by template
+        aliases: [arenactl, actl]
+        usage: For more info, use /arenacontrol ?
+        permission: ArenaControl.arenacontrol
+permissions:
+    ArenaControl.*:
+        description: Access to all ArenaControl commands
+        children:
+            ArenaControl.modify: true
+            ArenaControl.apply: true
+    ArenaControl.modify:
+        default: op
+    ArenaControl.apply:
+        default: op
+permission-message: Insufficient permissions
