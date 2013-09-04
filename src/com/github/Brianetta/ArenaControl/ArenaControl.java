@@ -88,6 +88,13 @@ public class ArenaControl extends JavaPlugin{
                                 if (corner2Z < corner1Z) {temp = corner2Z; corner2Z = corner1Z; corner1Z = temp;}
                                 sender.sendMessage("Arena \"" + args[2] + "\" defined from ("+corner1X.toString()+","+corner1Y.toString()+","+corner1Z.toString()+
                                         ") to ("+corner2X.toString()+","+corner2Y.toString()+","+corner2Z.toString()+")");
+                                // Save this arena into the config
+                                getConfig().set("arenas." + args[2] + ".X1",corner1X);
+                                getConfig().set("arenas." + args[2] + ".Y1",corner1Y);
+                                getConfig().set("arenas." + args[2] + ".Z1",corner1Z);
+                                getConfig().set("arenas." + args[2] + ".X2",corner2X);
+                                getConfig().set("arenas." + args[2] + ".Y2",corner2Y);
+                                getConfig().set("arenas." + args[2] + ".Z2",corner2Z);
                             } else {
                                 // Wrong number of arguments for definition of an arena
                                 sender.sendMessage("Expecting the name, then six numbers: X Y Z for corner 1, X Y Z for corner 2");
