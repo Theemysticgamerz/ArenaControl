@@ -63,23 +63,35 @@ public class ArenaControl extends JavaPlugin{
                         } else if (args[1].equalsIgnoreCase(cmd_define)) {
                             // Define a new arena
                             if (args.length == 9) {
+                                Integer corner1X, corner1Y, corner1Z,
+                                        corner2X, corner2Y, corner2Z;
                                 try {
                                     // Convert all the numeric arguments
-                                    Integer corner1X = Integer.parseInt(args[3]);
-                                    Integer corner1Y = Integer.parseInt(args[4]);
-                                    Integer corner1Z = Integer.parseInt(args[5]);
-                                    Integer corner2X = Integer.parseInt(args[6]);
-                                    Integer corner2Y = Integer.parseInt(args[7]);
-                                    Integer corner2Z = Integer.parseInt(args[8]);
+                                    corner1X = Integer.parseInt(args[3]);
+                                    corner1Y = Integer.parseInt(args[4]);
+                                    corner1Z = Integer.parseInt(args[5]);
+                                    corner2X = Integer.parseInt(args[6]);
+                                    corner2Y = Integer.parseInt(args[7]);
+                                    corner2Z = Integer.parseInt(args[8]);
                                 } catch (NumberFormatException exception) {
                                     // One or more of the numeric arguments didn't parse
                                     sender.sendMessage("Expecting the name, then six numbers: X Y Z for corner 1, X Y Z for corner 2");
-                                    sender.sendMessage("/arenacontrol " + cmd_define + " <name> X1 Y1 Z1 X2 Y2 Z2");
+                                    sender.sendMessage("/arenacontrol " + cmd_arena + " " + cmd_define + " <name> X1 Y1 Z1 X2 Y2 Z2");
+                                    // No useful input, so drop out of the command handler now.
+                                    return true;
                                 }
+                                // Now compare and sort the coordinates, so that we're using a consistent corner.
+                                // The lowest coordinate will be chosen as corner1, and the highest will be corner2.
+                                Integer temp;
+                                if (corner2X < corner1X) {temp = corner2X; corner2X = corner1X; corner1X = temp;}
+                                if (corner2Y < corner1Y) {temp = corner2Y; corner2Y = corner1Y; corner1Y = temp;}
+                                if (corner2Z < corner1Z) {temp = corner2Z; corner2Z = corner1Z; corner1Z = temp;}
+                                sender.sendMessage("Arena \"" + args[2] + "\" defined from ("+corner1X.toString()+","+corner1Y.toString()+","+corner1Z.toString()+
+                                        ") to ("+corner2X.toString()+","+corner2Y.toString()+","+corner2Z.toString()+")");
                             } else {
                                 // Wrong number of arguments for definition of an arena
                                 sender.sendMessage("Expecting the name, then six numbers: X Y Z for corner 1, X Y Z for corner 2");
-                                sender.sendMessage("/arenacontrol " + cmd_define + " <name> X1 Y1 Z1 X2 Y2 Z2");
+                                sender.sendMessage("/arenacontrol " + cmd_arena + " " + cmd_define + " <name> X1 Y1 Z1 X2 Y2 Z2");
                             }
                         } else if (args[1].equalsIgnoreCase(cmd_remove)) {
                             // Remove an arena
@@ -100,6 +112,26 @@ public class ArenaControl extends JavaPlugin{
                             // List all defined templates
                         } else if (args[1].equalsIgnoreCase(cmd_define)) {
                             // Define a new template
+                            if (args.length == 6) {
+                                Integer corner1X, corner1Y, corner1Z;
+                                try {
+                                    // Convert all the numeric arguments
+                                    corner1X = Integer.parseInt(args[3]);
+                                    corner1Y = Integer.parseInt(args[4]);
+                                    corner1Z = Integer.parseInt(args[5]);
+                                } catch (NumberFormatException exception) {
+                                    // One or more of the numeric arguments didn't parse
+                                    sender.sendMessage("Expecting the name, then three numbers: X Y Z for the bottom corner");
+                                    sender.sendMessage("/arenacontrol " + cmd_template + " " + cmd_define + " <name> X Y Z");
+                                    // No useful input, so drop out of the command handler now.
+                                    return true;
+                                }
+                                sender.sendMessage("Arena \"" + args[2] + "\" defined from ("+corner1X.toString()+","+corner1Y.toString()+","+corner1Z.toString()+")");
+                            } else {
+                                // Wrong number of arguments for definition of a template
+                                sender.sendMessage("Expecting the name, then three numbers: X Y Z for the bottom corner");
+                                sender.sendMessage("/arenacontrol " + cmd_template + " " + cmd_define + " <name> X Y Z");
+                            }
                         } else if (args[1].equalsIgnoreCase(cmd_remove)) {
                             // Remove an template
                         } else {
