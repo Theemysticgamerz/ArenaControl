@@ -50,6 +50,11 @@ public class ArenaControl extends JavaPlugin{
             if (args.length > 0) {
                 if (args[0].equalsIgnoreCase(cmd_assign)) {
                     // Assign a template to an arena
+                    if (args.length == 3) {
+                        // Copy template arg[2] into arena arg[1]
+                    } else {
+                        sender.sendMessage("You must specify the arena, then the template");
+                    }
                 } else if (args[0].equalsIgnoreCase(cmd_arena)) {
                     // Define, remove or list arena
                     if(args.length > 1) {
@@ -57,13 +62,34 @@ public class ArenaControl extends JavaPlugin{
                             // List all defined arenas
                         } else if (args[1].equalsIgnoreCase(cmd_define)) {
                             // Define a new arena
+                            if (args.length == 9) {
+                                try {
+                                    // Convert all the numeric arguments
+                                    Integer corner1X = Integer.parseInt(args[3]);
+                                    Integer corner1Y = Integer.parseInt(args[4]);
+                                    Integer corner1Z = Integer.parseInt(args[5]);
+                                    Integer corner2X = Integer.parseInt(args[6]);
+                                    Integer corner2Y = Integer.parseInt(args[7]);
+                                    Integer corner2Z = Integer.parseInt(args[8]);
+                                } catch (NumberFormatException exception) {
+                                    // One or more of the numeric arguments didn't parse
+                                    sender.sendMessage("Expecting the name, then six numbers: X Y Z for corner 1, X Y Z for corner 2");
+                                    sender.sendMessage("/arenacontrol " + cmd_define + " <name> X1 Y1 Z1 X2 Y2 Z2");
+                                }
+                            } else {
+                                // Wrong number of arguments for definition of an arena
+                                sender.sendMessage("Expecting the name, then six numbers: X Y Z for corner 1, X Y Z for corner 2");
+                                sender.sendMessage("/arenacontrol " + cmd_define + " <name> X1 Y1 Z1 X2 Y2 Z2");
+                            }
                         } else if (args[1].equalsIgnoreCase(cmd_remove)) {
                             // Remove an arena
                         } else {
+                            // Something other than list, define or remove was provided as a command
                             sender.sendMessage("Not a valid sub-command");
                             sender.sendMessage(cmd_arena + " sub-commands: " + cmd_list + ", " + cmd_define + ", " + cmd_remove);
                         }
                     } else {
+                        // Not enough arguments following "arena" command
                         sender.sendMessage("No sub-command provided");
                         sender.sendMessage(cmd_arena + " sub-commands: " + cmd_list + ", " + cmd_define + ", " + cmd_remove);
                     }
@@ -77,10 +103,12 @@ public class ArenaControl extends JavaPlugin{
                         } else if (args[1].equalsIgnoreCase(cmd_remove)) {
                             // Remove an template
                         } else {
+                            // Something other than list, define or remove was provided as a command
                             sender.sendMessage("Not a valid sub-command");
                             sender.sendMessage(cmd_template + " sub-commands: " + cmd_list + ", " + cmd_define + ", " + cmd_remove);
                         }
                     } else {
+                        // Not enough arguments following "template" command
                         sender.sendMessage("No sub-command provided");
                         sender.sendMessage(cmd_template + " sub-commands: " + cmd_list + ", " + cmd_define + ", " + cmd_remove);
                     }
