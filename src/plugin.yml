@@ -6,7 +6,15 @@ commands:
     arenacontrol:
         description: Controls arena floors by template
         aliases: [arenactl, actl]
-        usage: For more info, use /arenacontrol ?
+        usage: |
+            /arenacontrol assign <arena> <template>
+            /arenacontrol arena list
+            /arenacontrol arena define <name> <corner1> <corner2>
+            /arenacontrol arena remove <name>
+            /arenacontrol template list
+            /arenacontrol template define <name> <corner1>
+            /arenacontrol template remove <name>
+            corners are in the numeric format: X Y Z
         permission: ArenaControl.arenacontrol
 permissions:
     ArenaControl.*:

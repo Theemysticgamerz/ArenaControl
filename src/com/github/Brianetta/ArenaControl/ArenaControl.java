@@ -2,7 +2,6 @@ package com.github.Brianetta.ArenaControl;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -25,7 +24,6 @@ public class ArenaControl extends JavaPlugin{
     public void onEnable ()
     {
         saveDefaultConfig();
-        getLogger().info(getConfig().getString("testString"));
     }
 
     @Override
@@ -49,16 +47,46 @@ public class ArenaControl extends JavaPlugin{
 //                Player player = (Player) sender;
 //            } else {
 //            }
-            if(args.length > 0) {
-                if(args[0].equalsIgnoreCase(cmd_assign)){
+            if (args.length > 0) {
+                if (args[0].equalsIgnoreCase(cmd_assign)) {
                     // Assign a template to an arena
                 } else if (args[0].equalsIgnoreCase(cmd_arena)) {
                     // Define, remove or list arena
+                    if(args.length > 1) {
+                        if (args[1].equalsIgnoreCase(cmd_list)) {
+                            // List all defined arenas
+                        } else if (args[1].equalsIgnoreCase(cmd_define)) {
+                            // Define a new arena
+                        } else if (args[1].equalsIgnoreCase(cmd_remove)) {
+                            // Remove an arena
+                        } else {
+                            sender.sendMessage("Not a valid sub-command");
+                            sender.sendMessage(cmd_arena + " sub-commands: " + cmd_list + ", " + cmd_define + ", " + cmd_remove);
+                        }
+                    } else {
+                        sender.sendMessage("No sub-command provided");
+                        sender.sendMessage(cmd_arena + " sub-commands: " + cmd_list + ", " + cmd_define + ", " + cmd_remove);
+                    }
                 } else if (args[0].equalsIgnoreCase(cmd_template)) {
                     // Define, remove or list template
+                    if(args.length > 1) {
+                        if (args[1].equalsIgnoreCase(cmd_list)) {
+                            // List all defined templates
+                        } else if (args[1].equalsIgnoreCase(cmd_define)) {
+                            // Define a new template
+                        } else if (args[1].equalsIgnoreCase(cmd_remove)) {
+                            // Remove an template
+                        } else {
+                            sender.sendMessage("Not a valid sub-command");
+                            sender.sendMessage(cmd_template + " sub-commands: " + cmd_list + ", " + cmd_define + ", " + cmd_remove);
+                        }
+                    } else {
+                        sender.sendMessage("No sub-command provided");
+                        sender.sendMessage(cmd_template + " sub-commands: " + cmd_list + ", " + cmd_define + ", " + cmd_remove);
+                    }
                 }
+                return true;
             }
-            return true;
         }
         return false;
     }
