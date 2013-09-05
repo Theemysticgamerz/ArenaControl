@@ -48,7 +48,19 @@ public class ArenaControl extends JavaPlugin{
         }
 
         // Populate local variables
-
+        ArenaX1 = getConfig().getInt("arenas." + arena + ".X1");
+        ArenaY1 = getConfig().getInt("arenas." + arena + ".Y1");
+        ArenaZ1 = getConfig().getInt("arenas." + arena + ".Z1");
+        ArenaX2 = getConfig().getInt("arenas." + arena + ".X2");
+        ArenaY2 = getConfig().getInt("arenas." + arena + ".Y2");
+        ArenaZ2 = getConfig().getInt("arenas." + arena + ".Z2");
+        TemplateX1 = getConfig().getInt("templates." + template + ".X");
+        TemplateY1 = getConfig().getInt("templates." + template + ".Y");
+        TemplateZ1 = getConfig().getInt("templates." + template + ".Z");
+        // Set the opposite corner of the template using the dimensions of the arena
+        TemplateX2 = TemplateX1 + ArenaX2 - ArenaX1;
+        TemplateY2 = TemplateY1 + ArenaY2 - ArenaY1;
+        TemplateZ2 = TemplateZ1 + ArenaZ2 - ArenaZ1;
     }
 
     // Define some strings. These are sub-commands.
