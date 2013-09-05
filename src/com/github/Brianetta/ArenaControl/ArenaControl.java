@@ -21,15 +21,34 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class ArenaControl extends JavaPlugin{
 
     @Override
-    public void onEnable ()
-    {
+    public void onEnable() {
         saveDefaultConfig();
     }
 
     @Override
-    public void onDisable ()
-    {
+    public void onDisable() {
         saveConfig();
+    }
+
+    private void assignTemplateToArena(String template, String arena, CommandSender sender) {
+        Integer ArenaX1, ArenaY1, ArenaZ1;
+        Integer ArenaX2, ArenaY2, ArenaZ2;
+        Integer TemplateX1, TemplateY1, TemplateZ1;
+        Integer TemplateX2, TemplateY2, TemplateZ2;
+
+        // Sanity checking - make sure the arena exists by looking for its X1
+        if (getConfig().getString("arenas." + arena + ".X1") == null) {
+            sender.sendMessage("Arena " + arena + " is not defined");
+            return;
+        }
+        // Sanity checking - make sure the template exists by looking for its X
+        if (getConfig().getString("templates." + template + ".X") == null) {
+            sender.sendMessage("Template " + template + " is not defined");
+            return;
+        }
+
+        // Populate local variables
+
     }
 
     // Define some strings. These are sub-commands.
@@ -41,13 +60,14 @@ public class ArenaControl extends JavaPlugin{
     final String cmd_remove = "remove";      // sub-sub-command
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (cmd.getName().equalsIgnoreCase("arenacontrol")) {
             if (args.length > 0) {
                 if (args[0].equalsIgnoreCase(cmd_assign)) {
                     // Assign a template to an arena
                     if (args.length == 3) {
-                        // Copy template arg[2] into arena arg[1]
+                        // Actually do something
+                        assignTemplateToArena(args[2], args[1], sender);
                     } else {
                         sender.sendMessage("You must specify the arena, then the template");
                     }
@@ -55,15 +75,34 @@ public class ArenaControl extends JavaPlugin{
                     // Define, remove or list arena
                     if(args.length > 1) {
                         if (args[1].equalsIgnoreCase(cmd_list)) {
-                            // List all defined arenas
-                            for (String arena : getConfig().getKeys(true)) {
-                                // Magic numbers:
-                                // 6 is the position of the '.' in "arenas."
-                                // 7 is the position of the next character.
-                                if (arena.startsWith("arenas.") && arena.lastIndexOf(".") == 6) {
-                                    arena = arena.substring(7);
-                                    sender.sendMessage("Arena: " + arena);
-                                } else continue;
+                            // Listing arenas
+                            if (args.length > 2) {
+                                // A name was specified after the "list" command
+                                if (getConfig().getString("arenas." + args[2] + ".X1") == null) {
+                                    // The name wasn't that of a defined arena
+                                    sender.sendMessage("Arena " + args[2] + " not found");
+                                    return true;
+                                } else {
+                                    // The name was that of a defined arena, so show it to the sender
+                                    sender.sendMessage("Arena " + args[2] +
+                                            ": from (X=" + getConfig().getString("arenas." + args[2] + ".X1") +
+                                            ",Y=" + getConfig().getString("arenas." + args[2] + ".Y1") +
+                                            ",Z=" + getConfig().getString("arenas." + args[2] + ".Z1") +
+                                            ") to (X=" + getConfig().getString("arenas." + args[2] + ".X2") +
+                                            ",Y=" + getConfig().getString("arenas." + args[2] + ".Y2") +
+                                            ",Z=" + getConfig().getString("arenas." + args[2] + ".Z2") + ")");
+                                }
+                            } else {
+                                // List all defined arenas
+                                for (String arena : getConfig().getKeys(true)) {
+                                    // Magic numbers:
+                                    // 6 is the position of the '.' in "arenas."
+                                    // 7 is the position of the next character.
+                                    if (arena.startsWith("arenas.") && arena.lastIndexOf(".") == 6) {
+                                        arena = arena.substring(7);
+                                        sender.sendMessage("Arena: " + arena);
+                                    }
+                                }
                             }
                         } else if (args[1].equalsIgnoreCase(cmd_define)) {
                             // Define a new arena
@@ -91,8 +130,8 @@ public class ArenaControl extends JavaPlugin{
                                 if (corner2X < corner1X) {temp = corner2X; corner2X = corner1X; corner1X = temp;}
                                 if (corner2Y < corner1Y) {temp = corner2Y; corner2Y = corner1Y; corner1Y = temp;}
                                 if (corner2Z < corner1Z) {temp = corner2Z; corner2Z = corner1Z; corner1Z = temp;}
-                                sender.sendMessage("Arena \"" + args[2] + "\" defined from ("+corner1X.toString()+","+corner1Y.toString()+","+corner1Z.toString()+
-                                        ") to ("+corner2X.toString()+","+corner2Y.toString()+","+corner2Z.toString()+")");
+                                sender.sendMessage("Arena \"" + args[2] + "\" defined from (X="+corner1X.toString()+",Y="+corner1Y.toString()+",Z="+corner1Z.toString()+
+                                        ") to (X="+corner2X.toString()+",Y="+corner2Y.toString()+",Z="+corner2Z.toString()+")");
                                 // Save this arena into the config
                                 getConfig().set("arenas." + args[2] + ".X1",corner1X);
                                 getConfig().set("arenas." + args[2] + ".Y1",corner1Y);
@@ -107,6 +146,15 @@ public class ArenaControl extends JavaPlugin{
                             }
                         } else if (args[1].equalsIgnoreCase(cmd_remove)) {
                             // Remove an arena
+                            if (args.length > 2) {
+                                // A name was specified
+                                getConfig().set("arenas." + args[2],null);
+                                sender.sendMessage("Removed arena: " + args[2]);
+                            } else {
+                                // No name was specified
+                                sender.sendMessage("Expecting the name of an arena to remove");
+                                sender.sendMessage("/arenacontrol " + cmd_arena + " " + cmd_remove + " <name>");
+                            }
                         } else {
                             // Something other than list, define or remove was provided as a command
                             sender.sendMessage("Not a valid sub-command");
@@ -121,7 +169,32 @@ public class ArenaControl extends JavaPlugin{
                     // Define, remove or list template
                     if(args.length > 1) {
                         if (args[1].equalsIgnoreCase(cmd_list)) {
-                            // List all defined templates
+                            // Listing templates
+                            if (args.length > 2) {
+                                // A name was specified after the "list" command
+                                if (getConfig().getString("templates." + args[2] + ".X") == null) {
+                                    // The name wasn't that of a defined template
+                                    sender.sendMessage("Template " + args[2] + " not found");
+                                    return true;
+                                } else {
+                                    // The name was that of a defined template, so show it to the sender
+                                    sender.sendMessage("Template " + args[2] +
+                                            ": from (" + getConfig().getString("templates." + args[2] + ".X") +
+                                            "," + getConfig().getString("templates." + args[2] + ".Y") +
+                                            "," + getConfig().getString("templates." + args[2] + ".Z") + ")");
+                                }
+                            } else {
+                                // List all defined templates
+                                for (String template : getConfig().getKeys(true)) {
+                                    // Magic numbers:
+                                    // 9 is the position of the '.' in "templates."
+                                    // 10 is the position of the next character.
+                                    if (template.startsWith("templates.") && template.lastIndexOf(".") == 9) {
+                                        template = template.substring(10);
+                                        sender.sendMessage("Template: " + template);
+                                    }
+                                }
+                            }
                         } else if (args[1].equalsIgnoreCase(cmd_define)) {
                             // Define a new template
                             if (args.length == 6) {
@@ -138,14 +211,27 @@ public class ArenaControl extends JavaPlugin{
                                     // No useful input, so drop out of the command handler now.
                                     return true;
                                 }
-                                sender.sendMessage("Arena \"" + args[2] + "\" defined from ("+corner1X.toString()+","+corner1Y.toString()+","+corner1Z.toString()+")");
+                                sender.sendMessage("Template \"" + args[2] + "\" defined from ("+corner1X.toString()+","+corner1Y.toString()+","+corner1Z.toString()+")");
+                                // Save this template into the config
+                                getConfig().set("templates." + args[2] + ".X",corner1X);
+                                getConfig().set("templates." + args[2] + ".Y",corner1Y);
+                                getConfig().set("templates." + args[2] + ".Z",corner1Z);
                             } else {
                                 // Wrong number of arguments for definition of a template
                                 sender.sendMessage("Expecting the name, then three numbers: X Y Z for the bottom corner");
                                 sender.sendMessage("/arenacontrol " + cmd_template + " " + cmd_define + " <name> X Y Z");
                             }
                         } else if (args[1].equalsIgnoreCase(cmd_remove)) {
-                            // Remove an template
+                            // Remove a template
+                            if (args.length > 2) {
+                                // A name was specified
+                                getConfig().set("templates." + args[2],null);
+                                sender.sendMessage("Removed template: " + args[2]);
+                            } else {
+                                // No name was specified
+                                sender.sendMessage("Expecting the name of a template to remove");
+                                sender.sendMessage("/arenacontrol " + cmd_template + " " + cmd_remove + " <name>");
+                            }
                         } else {
                             // Something other than list, define or remove was provided as a command
                             sender.sendMessage("Not a valid sub-command");
