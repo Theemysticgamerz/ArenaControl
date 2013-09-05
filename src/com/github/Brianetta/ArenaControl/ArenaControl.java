@@ -43,10 +43,6 @@ public class ArenaControl extends JavaPlugin{
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
         if (cmd.getName().equalsIgnoreCase("arenacontrol")) {
-//            if (sender instanceof Player) {
-//                Player player = (Player) sender;
-//            } else {
-//            }
             if (args.length > 0) {
                 if (args[0].equalsIgnoreCase(cmd_assign)) {
                     // Assign a template to an arena
@@ -60,6 +56,15 @@ public class ArenaControl extends JavaPlugin{
                     if(args.length > 1) {
                         if (args[1].equalsIgnoreCase(cmd_list)) {
                             // List all defined arenas
+                            for (String arena : getConfig().getKeys(true)) {
+                                // Magic numbers:
+                                // 6 is the position of the '.' in "arenas."
+                                // 7 is the position of the next character.
+                                if (arena.startsWith("arenas.") && arena.lastIndexOf(".") == 6) {
+                                    arena = arena.substring(7);
+                                    sender.sendMessage("Arena: " + arena);
+                                } else continue;
+                            }
                         } else if (args[1].equalsIgnoreCase(cmd_define)) {
                             // Define a new arena
                             if (args.length == 9) {
