@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+
 /**
  * Copyright © Brian Ronald
  * 02/09/13
@@ -32,7 +33,7 @@ public class ArenaControl extends JavaPlugin{
         saveConfig();
     }
 
-    private void assignTemplateToArena(String template, String arena, CommandSender sender) {
+    private void assignTemplateToArena(String arena, String template, CommandSender sender) {
         int ArenaX1, ArenaY1, ArenaZ1;
         int ArenaX2, ArenaY2, ArenaZ2;
         int TemplateX1, TemplateY1, TemplateZ1;
@@ -67,11 +68,15 @@ public class ArenaControl extends JavaPlugin{
         ArenaWorld = getServer().getWorld(getConfig().getString("arenas." + arena + ".world"));
         TemplateWorld = getServer().getWorld(getConfig().getString("templates." + template + ".world"));
 
-        // Copy the template.
+        // Copy the template to the arena, block by block.
+        int BlockType;
+        byte BlockData;
         for (int iZ=ArenaZ1; iZ <= ArenaZ2; iZ++) {
             for (int iY=ArenaY1; iY <= ArenaY2; iY++) {
                 for (int iX=ArenaX1; iX <= ArenaX2; iX++) {
-
+                    BlockType = TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getTypeId();
+                    BlockData = TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getData();
+                    ArenaWorld.getBlockAt(iX,iY,iZ).setTypeIdAndData(BlockType,BlockData,false);
                 }
             }
         }
@@ -93,7 +98,7 @@ public class ArenaControl extends JavaPlugin{
                     // Assign a template to an arena
                     if (args.length == 3) {
                         // Actually do something
-                        assignTemplateToArena(args[2], args[1], sender);
+                        assignTemplateToArena(args[1], args[2], sender);
                     } else {
                         sender.sendMessage("You must specify the arena, then the template");
                     }
@@ -170,7 +175,7 @@ public class ArenaControl extends JavaPlugin{
                                     sender.sendMessage("Arena \"" + args[2] + "\" defined from (X="+corner1X.toString()+",Y="+corner1Y.toString()+",Z="+corner1Z.toString()+
                                     ") to (X="+corner2X.toString()+",Y="+corner2Y.toString()+",Z="+corner2Z.toString()+")");
                                 } else if (sender instanceof Player) {
-                                    getConfig().set("arenas." + args[2] + ".world",((Player) sender).getWorld().getUID());
+                                    getConfig().set("arenas." + args[2] + ".world",((Player) sender).getWorld().getName());
                                     sender.sendMessage("Arena \"" + args[2] + "\" defined from (X="+corner1X.toString()+",Y="+corner1Y.toString()+",Z="+corner1Z.toString()+
                                     ") to (X="+corner2X.toString()+",Y="+corner2Y.toString()+",Z="+corner2Z.toString()+")");
                                 } else {
@@ -256,10 +261,10 @@ public class ArenaControl extends JavaPlugin{
                                 getConfig().set("templates." + args[2] + ".Z",corner1Z);
                                 if (args.length > 6) {
                                     getConfig().set("templates." + args[2] + ".world",args[6]);
-                                    sender.sendMessage("Template \"" + args[2] + "\" defined from ("+corner1X.toString()+","+corner1Y.toString()+","+corner1Z.toString()+")");
+                                    sender.sendMessage("Template \"" + args[2] + "\" defined from (" + corner1X.toString() + "," + corner1Y.toString() + "," + corner1Z.toString() + ")");
                                 } else if (sender instanceof Player) {
-                                    getConfig().set("templates." + args[2] + ".world",((Player) sender).getWorld().getUID());
-                                    sender.sendMessage("Template \"" + args[2] + "\" defined from ("+corner1X.toString()+","+corner1Y.toString()+","+corner1Z.toString()+")");
+                                    getConfig().set("templates." + args[2] + ".world",((Player) sender).getWorld().getName());
+                                    sender.sendMessage("Template \"" + args[2] + "\" defined from (" + corner1X.toString() + "," + corner1Y.toString() + "," + corner1Z.toString() + ")");
                                 } else {
                                     sender.sendMessage("You are not a player; you must specify a world ID.");
                                 }
