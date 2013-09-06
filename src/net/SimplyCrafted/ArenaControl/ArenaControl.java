@@ -95,6 +95,11 @@ public class ArenaControl extends JavaPlugin{
         if (cmd.getName().equalsIgnoreCase("arenacontrol")) {
             if (args.length > 0) {
                 if (args[0].equalsIgnoreCase(cmd_assign)) {
+                    // Permission check
+                    if (sender instanceof Player && !(sender.hasPermission("ArenaControl.apply"))) {
+                        sender.sendMessage("You do not have permission to run this command");
+                        return true;
+                    }
                     // Assign a template to an arena
                     if (args.length == 3) {
                         // Actually do something
@@ -106,6 +111,10 @@ public class ArenaControl extends JavaPlugin{
                     // Define, remove or list arena
                     if(args.length > 1) {
                         if (args[1].equalsIgnoreCase(cmd_list)) {
+                            if (sender instanceof Player && !(sender.hasPermission("ArenaControl.apply"))) {
+                                sender.sendMessage("You do not have permission to run this command");
+                                return true;
+                            }
                             // Listing arenas
                             if (args.length > 2) {
                                 // A name was specified after the "list" command
@@ -137,6 +146,10 @@ public class ArenaControl extends JavaPlugin{
                                 }
                             }
                         } else if (args[1].equalsIgnoreCase(cmd_define)) {
+                            if (sender instanceof Player && !(sender.hasPermission("ArenaControl.modify"))) {
+                                sender.sendMessage("You do not have permission to run this command");
+                                return true;
+                            }
                             // Define a new arena
                             if (args.length >= 9) {
                                 Integer corner1X, corner1Y, corner1Z,
@@ -188,6 +201,10 @@ public class ArenaControl extends JavaPlugin{
                                 sender.sendMessage("/arenacontrol " + cmd_arena + " " + cmd_define + " <name> X1 Y1 Z1 X2 Y2 Z2 [WorldID]");
                             }
                         } else if (args[1].equalsIgnoreCase(cmd_remove)) {
+                            if (sender instanceof Player && !(sender.hasPermission("ArenaControl.modify"))) {
+                                sender.sendMessage("You do not have permission to run this command");
+                                return true;
+                            }
                             // Remove an arena
                             if (args.length > 2) {
                                 // A name was specified
@@ -212,6 +229,10 @@ public class ArenaControl extends JavaPlugin{
                     // Define, remove or list template
                     if(args.length > 1) {
                         if (args[1].equalsIgnoreCase(cmd_list)) {
+                            if (sender instanceof Player && !(sender.hasPermission("ArenaControl.apply"))) {
+                                sender.sendMessage("You do not have permission to run this command");
+                                return true;
+                            }
                             // Listing templates
                             if (args.length > 2) {
                                 // A name was specified after the "list" command
@@ -239,6 +260,10 @@ public class ArenaControl extends JavaPlugin{
                                 }
                             }
                         } else if (args[1].equalsIgnoreCase(cmd_define)) {
+                            if (sender instanceof Player && !(sender.hasPermission("ArenaControl.modify"))) {
+                                sender.sendMessage("You do not have permission to run this command");
+                                return true;
+                            }
                             // Define a new template
                             if (args.length >= 6) {
                                 Integer corner1X, corner1Y, corner1Z;
@@ -275,6 +300,10 @@ public class ArenaControl extends JavaPlugin{
                                 sender.sendMessage("/arenacontrol " + cmd_template + " " + cmd_define + " <name> X Y Z [WorldID]");
                             }
                         } else if (args[1].equalsIgnoreCase(cmd_remove)) {
+                            if (sender instanceof Player && !(sender.hasPermission("ArenaControl.modify"))) {
+                                sender.sendMessage("You do not have permission to run this command");
+                                return true;
+                            }
                             // Remove a template
                             if (args.length > 2) {
                                 // A name was specified

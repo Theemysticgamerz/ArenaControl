@@ -15,7 +15,6 @@ commands:
             /arenacontrol template define <name> <corner1>
             /arenacontrol template remove <name>
             corners are in the numeric format: X Y Z
-        permission: ArenaControl.arenacontrol
 permissions:
     ArenaControl.*:
         description: Access to all ArenaControl commands
@@ -26,4 +25,3 @@ permissions:
         default: op
     ArenaControl.apply:
         default: op
-permission-message: Insufficient permissions
