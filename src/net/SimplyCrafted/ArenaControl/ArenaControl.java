@@ -1,7 +1,9 @@
 package net.SimplyCrafted.ArenaControl;
 
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -31,10 +33,11 @@ public class ArenaControl extends JavaPlugin{
     }
 
     private void assignTemplateToArena(String template, String arena, CommandSender sender) {
-        Integer ArenaX1, ArenaY1, ArenaZ1;
-        Integer ArenaX2, ArenaY2, ArenaZ2;
-        Integer TemplateX1, TemplateY1, TemplateZ1;
-        Integer TemplateX2, TemplateY2, TemplateZ2;
+        int ArenaX1, ArenaY1, ArenaZ1;
+        int ArenaX2, ArenaY2, ArenaZ2;
+        int TemplateX1, TemplateY1, TemplateZ1;
+        int OffsetX, OffsetY, OffsetZ;
+        World TemplateWorld, ArenaWorld;
 
         // Sanity checking - make sure the arena exists by looking for its X1
         if (getConfig().getString("arenas." + arena + ".X1") == null) {
@@ -58,9 +61,20 @@ public class ArenaControl extends JavaPlugin{
         TemplateY1 = getConfig().getInt("templates." + template + ".Y");
         TemplateZ1 = getConfig().getInt("templates." + template + ".Z");
         // Set the opposite corner of the template using the dimensions of the arena
-        TemplateX2 = TemplateX1 + ArenaX2 - ArenaX1;
-        TemplateY2 = TemplateY1 + ArenaY2 - ArenaY1;
-        TemplateZ2 = TemplateZ1 + ArenaZ2 - ArenaZ1;
+        OffsetX = TemplateX1 - ArenaX1;
+        OffsetY = TemplateY1 - ArenaY1;
+        OffsetZ = TemplateZ1 - ArenaZ1;
+        ArenaWorld = getServer().getWorld(getConfig().getString("arenas." + arena + ".world"));
+        TemplateWorld = getServer().getWorld(getConfig().getString("templates." + template + ".world"));
+
+        // Copy the template.
+        for (int iZ=ArenaZ1; iZ <= ArenaZ2; iZ++) {
+            for (int iY=ArenaY1; iY <= ArenaY2; iY++) {
+                for (int iX=ArenaX1; iX <= ArenaX2; iX++) {
+
+                }
+            }
+        }
     }
 
     // Define some strings. These are sub-commands.
@@ -102,7 +116,8 @@ public class ArenaControl extends JavaPlugin{
                                             ",Z=" + getConfig().getString("arenas." + args[2] + ".Z1") +
                                             ") to (X=" + getConfig().getString("arenas." + args[2] + ".X2") +
                                             ",Y=" + getConfig().getString("arenas." + args[2] + ".Y2") +
-                                            ",Z=" + getConfig().getString("arenas." + args[2] + ".Z2") + ")");
+                                            ",Z=" + getConfig().getString("arenas." + args[2] + ".Z2") + ") in world "
+                                            + getConfig().getString("arenas." + args[2] + ".world"));
                                 }
                             } else {
                                 // List all defined arenas
@@ -118,7 +133,7 @@ public class ArenaControl extends JavaPlugin{
                             }
                         } else if (args[1].equalsIgnoreCase(cmd_define)) {
                             // Define a new arena
-                            if (args.length == 9) {
+                            if (args.length >= 9) {
                                 Integer corner1X, corner1Y, corner1Z,
                                         corner2X, corner2Y, corner2Z;
                                 try {
@@ -132,7 +147,8 @@ public class ArenaControl extends JavaPlugin{
                                 } catch (NumberFormatException exception) {
                                     // One or more of the numeric arguments didn't parse
                                     sender.sendMessage("Expecting the name, then six numbers: X Y Z for corner 1, X Y Z for corner 2");
-                                    sender.sendMessage("/arenacontrol " + cmd_arena + " " + cmd_define + " <name> X1 Y1 Z1 X2 Y2 Z2");
+                                    sender.sendMessage("then (optionally) the world identifier (defaults to current world)");
+                                    sender.sendMessage("/arenacontrol " + cmd_arena + " " + cmd_define + " <name> X1 Y1 Z1 X2 Y2 Z2 [WorldID]");
                                     // No useful input, so drop out of the command handler now.
                                     return true;
                                 }
@@ -142,8 +158,6 @@ public class ArenaControl extends JavaPlugin{
                                 if (corner2X < corner1X) {temp = corner2X; corner2X = corner1X; corner1X = temp;}
                                 if (corner2Y < corner1Y) {temp = corner2Y; corner2Y = corner1Y; corner1Y = temp;}
                                 if (corner2Z < corner1Z) {temp = corner2Z; corner2Z = corner1Z; corner1Z = temp;}
-                                sender.sendMessage("Arena \"" + args[2] + "\" defined from (X="+corner1X.toString()+",Y="+corner1Y.toString()+",Z="+corner1Z.toString()+
-                                        ") to (X="+corner2X.toString()+",Y="+corner2Y.toString()+",Z="+corner2Z.toString()+")");
                                 // Save this arena into the config
                                 getConfig().set("arenas." + args[2] + ".X1",corner1X);
                                 getConfig().set("arenas." + args[2] + ".Y1",corner1Y);
@@ -151,10 +165,22 @@ public class ArenaControl extends JavaPlugin{
                                 getConfig().set("arenas." + args[2] + ".X2",corner2X);
                                 getConfig().set("arenas." + args[2] + ".Y2",corner2Y);
                                 getConfig().set("arenas." + args[2] + ".Z2",corner2Z);
+                                if (args.length > 9) {
+                                    getConfig().set("arenas." + args[2] + ".world",args[9]);
+                                    sender.sendMessage("Arena \"" + args[2] + "\" defined from (X="+corner1X.toString()+",Y="+corner1Y.toString()+",Z="+corner1Z.toString()+
+                                    ") to (X="+corner2X.toString()+",Y="+corner2Y.toString()+",Z="+corner2Z.toString()+")");
+                                } else if (sender instanceof Player) {
+                                    getConfig().set("arenas." + args[2] + ".world",((Player) sender).getWorld().getUID());
+                                    sender.sendMessage("Arena \"" + args[2] + "\" defined from (X="+corner1X.toString()+",Y="+corner1Y.toString()+",Z="+corner1Z.toString()+
+                                    ") to (X="+corner2X.toString()+",Y="+corner2Y.toString()+",Z="+corner2Z.toString()+")");
+                                } else {
+                                    sender.sendMessage("You are not a player; you must specify a world ID.");
+                                }
                             } else {
                                 // Wrong number of arguments for definition of an arena
                                 sender.sendMessage("Expecting the name, then six numbers: X Y Z for corner 1, X Y Z for corner 2");
-                                sender.sendMessage("/arenacontrol " + cmd_arena + " " + cmd_define + " <name> X1 Y1 Z1 X2 Y2 Z2");
+                                sender.sendMessage("then (optionally) the world identifier (defaults to current world)");
+                                sender.sendMessage("/arenacontrol " + cmd_arena + " " + cmd_define + " <name> X1 Y1 Z1 X2 Y2 Z2 [WorldID]");
                             }
                         } else if (args[1].equalsIgnoreCase(cmd_remove)) {
                             // Remove an arena
@@ -193,7 +219,7 @@ public class ArenaControl extends JavaPlugin{
                                     sender.sendMessage("Template " + args[2] +
                                             ": from (" + getConfig().getString("templates." + args[2] + ".X") +
                                             "," + getConfig().getString("templates." + args[2] + ".Y") +
-                                            "," + getConfig().getString("templates." + args[2] + ".Z") + ")");
+                                            "," + getConfig().getString("templates." + args[2] + ".Z") + ") in world " +getConfig().getString("templates." + args[2] + ".world"));
                                 }
                             } else {
                                 // List all defined templates
@@ -209,7 +235,7 @@ public class ArenaControl extends JavaPlugin{
                             }
                         } else if (args[1].equalsIgnoreCase(cmd_define)) {
                             // Define a new template
-                            if (args.length == 6) {
+                            if (args.length >= 6) {
                                 Integer corner1X, corner1Y, corner1Z;
                                 try {
                                     // Convert all the numeric arguments
@@ -219,19 +245,29 @@ public class ArenaControl extends JavaPlugin{
                                 } catch (NumberFormatException exception) {
                                     // One or more of the numeric arguments didn't parse
                                     sender.sendMessage("Expecting the name, then three numbers: X Y Z for the bottom corner");
-                                    sender.sendMessage("/arenacontrol " + cmd_template + " " + cmd_define + " <name> X Y Z");
+                                    sender.sendMessage("then (optionally) the world identifier (defaults to current world)");
+                                    sender.sendMessage("/arenacontrol " + cmd_template + " " + cmd_define + " <name> X Y Z [WorldID]");
                                     // No useful input, so drop out of the command handler now.
                                     return true;
                                 }
-                                sender.sendMessage("Template \"" + args[2] + "\" defined from ("+corner1X.toString()+","+corner1Y.toString()+","+corner1Z.toString()+")");
                                 // Save this template into the config
                                 getConfig().set("templates." + args[2] + ".X",corner1X);
                                 getConfig().set("templates." + args[2] + ".Y",corner1Y);
                                 getConfig().set("templates." + args[2] + ".Z",corner1Z);
+                                if (args.length > 6) {
+                                    getConfig().set("templates." + args[2] + ".world",args[6]);
+                                    sender.sendMessage("Template \"" + args[2] + "\" defined from ("+corner1X.toString()+","+corner1Y.toString()+","+corner1Z.toString()+")");
+                                } else if (sender instanceof Player) {
+                                    getConfig().set("templates." + args[2] + ".world",((Player) sender).getWorld().getUID());
+                                    sender.sendMessage("Template \"" + args[2] + "\" defined from ("+corner1X.toString()+","+corner1Y.toString()+","+corner1Z.toString()+")");
+                                } else {
+                                    sender.sendMessage("You are not a player; you must specify a world ID.");
+                                }
                             } else {
                                 // Wrong number of arguments for definition of a template
                                 sender.sendMessage("Expecting the name, then three numbers: X Y Z for the bottom corner");
-                                sender.sendMessage("/arenacontrol " + cmd_template + " " + cmd_define + " <name> X Y Z");
+                                sender.sendMessage("then (optionally) the world identifier (defaults to current world)");
+                                sender.sendMessage("/arenacontrol " + cmd_template + " " + cmd_define + " <name> X Y Z [WorldID]");
                             }
                         } else if (args[1].equalsIgnoreCase(cmd_remove)) {
                             // Remove a template
