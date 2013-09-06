@@ -1,5 +1,5 @@
 name: ArenaControl
-main: com.github.Brianetta.ArenaControl.ArenaControl
+main: net.SimplyCrafted.ArenaControl.ArenaControl
 version: 0.0.1
 author: Brian Ronald
 commands:

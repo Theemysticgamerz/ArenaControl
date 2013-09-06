@@ -1,4 +1,4 @@
-package com.github.Brianetta.ArenaControl;
+package net.SimplyCrafted.ArenaControl;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
