@@ -107,6 +107,9 @@ public class ArenaControl extends JavaPlugin{
         if (cmd.getName().equalsIgnoreCase("arenacontrol")) {
             if (args.length > 0) {
                 if (args[0].equalsIgnoreCase(cmd_assign)) {
+
+                    /* * * ARENACONTROL ASSIGN * * */
+
                     // Permission check
                     if (sender instanceof Player && !(sender.hasPermission("ArenaControl.apply"))) {
                         sender.sendMessage("You do not have permission to run this command");
@@ -120,6 +123,9 @@ public class ArenaControl extends JavaPlugin{
                         sender.sendMessage("You must specify the arena, then the template");
                     }
                 } else if (args[0].equalsIgnoreCase(cmd_arena)) {
+
+                    /* * * ARENACONTROL ARENA * * */
+
                     // Define, remove or list arena
                     if(args.length > 1) {
                         if (args[1].equalsIgnoreCase(cmd_list)) {
@@ -238,6 +244,9 @@ public class ArenaControl extends JavaPlugin{
                         sender.sendMessage(cmd_arena + " sub-commands: " + cmd_list + ", " + cmd_define + ", " + cmd_remove);
                     }
                 } else if (args[0].equalsIgnoreCase(cmd_template)) {
+
+                    /* * * ARENACONTROL TEMPLATE * * */
+
                     // Define, remove or list template
                     if(args.length > 1) {
                         if (args[1].equalsIgnoreCase(cmd_list)) {
