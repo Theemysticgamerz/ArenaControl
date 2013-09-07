@@ -68,9 +68,21 @@ public class ArenaControl extends JavaPlugin{
         ArenaWorld = getServer().getWorld(getConfig().getString("arenas." + arena + ".world"));
         TemplateWorld = getServer().getWorld(getConfig().getString("templates." + template + ".world"));
 
-        // Copy the template to the arena, block by block.
+        // Copy the opaque blocks from the template to the arena, block by block.
         int BlockType;
         byte BlockData;
+        for (int iZ=ArenaZ1; iZ <= ArenaZ2; iZ++) {
+            for (int iY=ArenaY1; iY <= ArenaY2; iY++) {
+                for (int iX=ArenaX1; iX <= ArenaX2; iX++) {
+                    if (!(TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getType().isTransparent())) {
+                        BlockType = TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getTypeId();
+                        BlockData = TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getData();
+                        ArenaWorld.getBlockAt(iX,iY,iZ).setTypeIdAndData(BlockType,BlockData,false);
+                    }
+                }
+            }
+        }
+        // Re-copy the entire template to the arena, block by block.
         for (int iZ=ArenaZ1; iZ <= ArenaZ2; iZ++) {
             for (int iY=ArenaY1; iY <= ArenaY2; iY++) {
                 for (int iX=ArenaX1; iX <= ArenaX2; iX++) {
