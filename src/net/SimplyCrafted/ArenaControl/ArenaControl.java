@@ -1,11 +1,15 @@
 package net.SimplyCrafted.ArenaControl;
 
 import org.bukkit.World;
+import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-
 
 /**
  * Copyright © Brian Ronald
@@ -21,16 +25,18 @@ import org.bukkit.plugin.java.JavaPlugin;
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-public class ArenaControl extends JavaPlugin{
+public class ArenaControl extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        getServer().getPluginManager().registerEvents(this, this);
     }
 
     @Override
     public void onDisable() {
         saveConfig();
+        PlayerInteractEvent.getHandlerList().unregister((Listener) this);
     }
 
     private void assignTemplateToArena(String arena, String template, CommandSender sender) {
@@ -90,6 +96,30 @@ public class ArenaControl extends JavaPlugin{
                     BlockData = TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getData();
                     ArenaWorld.getBlockAt(iX,iY,iZ).setTypeIdAndData(BlockType,BlockData,false);
                 }
+            }
+        }
+        // Message to confirm that
+        sender.sendMessage("Template " + template + " has been copied to arena " + arena);
+    }
+
+    @EventHandler
+    public void onPlayerInteractEvent (PlayerInteractEvent event) {
+        // Check the player did something to a sign
+        if (!(event.getClickedBlock().getState() instanceof Sign)) return;
+        // Check that that something was a right click
+        if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK)) return;
+
+        Sign sign = (Sign) event.getClickedBlock().getState();
+        // Check that this is *our* sign
+        if (sign.getLine(0).equalsIgnoreCase("[ArenaControl]")) {
+            // Check the player's permissions
+            if (event.getPlayer().hasPermission("ArenaControl.assign")) {
+                // Assign the template on the third line to the
+                // arena on the second line
+                assignTemplateToArena(sign.getLine(1), sign.getLine(2), event.getPlayer());
+            } else {
+                event.getPlayer().sendMessage("You don't have permission.");
+                return;
             }
         }
     }
