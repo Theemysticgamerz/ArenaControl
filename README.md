@@ -137,7 +137,7 @@ The fourth line is ignored, and may contain any arbitrary text.
 An example, for a spleef arena called *spleef1* using a template of snow blocks
 named *flatsnow*:
 
-[ArenaControl]
-spleef1
-flatsnow
-Reset spleef!
+    [ArenaControl]
+       spleef1
+      flatsnow
+    Reset spleef!
