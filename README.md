@@ -64,7 +64,7 @@ Arenas are stored in the plugin's config.yml file.
 A template is a source volume. The **arena** sub-command has several sub-commands
 of its own. To make a template, use the **define** command:
 
-    /arenacontrol arena define <name> <x> <y> <z> [world]**
+    /arenacontrol arena define <name> <x> <y> <z> [world]
 
 - *name* - A single word defining the template. Case sensitive.
 - *x* - Least X corner coordinate of the template volume
