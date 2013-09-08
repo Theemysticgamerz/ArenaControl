@@ -6,6 +6,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -102,7 +103,7 @@ public class ArenaControl extends JavaPlugin implements Listener {
         sender.sendMessage("Template " + template + " has been copied to arena " + arena);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteractEvent (PlayerInteractEvent event) {
         // Check the player did something to a sign
         if (!(event.getClickedBlock().getState() instanceof Sign)) return;
@@ -122,6 +123,8 @@ public class ArenaControl extends JavaPlugin implements Listener {
                 return;
             }
         }
+        // Successful, so eat the event.
+        event.setCancelled(true);
     }
 
     // Define some strings. These are sub-commands.
