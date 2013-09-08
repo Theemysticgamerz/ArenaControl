@@ -32,7 +32,7 @@ to allow easy switching of arenas.
 An arena is a target volume. The **arena** sub-command has several sub-commands
 of its own. To make an arena, use the **define** command:
 
-    **/arenacontrol arena define <name> <x1> <y1> <z1> <x2> <y2> <z2> [world]**
+    /arenacontrol arena define <name> <x1> <y1> <z1> <x2> <y2> <z2> [world]
 
 - *name* - A single word defining the arena. Case sensitive.
 - *x1* - X coordinate of one of the corners of the arena volume
@@ -45,17 +45,17 @@ of its own. To make an arena, use the **define** command:
 
 Arenas can be listed with the **list** command:
 
-    **/arenacontrol arena list**
+    /arenacontrol arena list
 
 This will list all of the defined arenas, one line at a time. To see the details of a specific arena, specify its name:
 
-    **/arenacontrol arena list <name>**
+    /arenacontrol arena list <name>
 
 Again, *name* is case sensitive.
 
 Finally, an arena can be forgotten with the **remove** command:
 
-    **/arenacontrol arena remove <name>**
+    /arenacontrol arena remove <name>
 
 Arenas are stored in the plugin's config.yml file.
 
@@ -64,7 +64,7 @@ Arenas are stored in the plugin's config.yml file.
 A template is a source volume. The **arena** sub-command has several sub-commands
 of its own. To make a template, use the **define** command:
 
-    **/templatecontrol arena define <name> <x> <y> <z> [world]**
+    /arenacontrol arena define <name> <x> <y> <z> [world]**
 
 - *name* - A single word defining the template. Case sensitive.
 - *x* - Least X corner coordinate of the template volume
@@ -74,17 +74,17 @@ of its own. To make a template, use the **define** command:
 
 Templates can be listed with the **list** command:
 
-    **/templatecontrol arena list**
+    /arenacontrol arena list
 
 This will list all of the defined templates, one line at a time. To see the details of a specific template, specify its name:
 
-    **/templatecontrol arena list <name>**
+    /arenacontrol arena list <name>
 
 Again, *name* is case sensitive.
 
 Finally, a template can be forgotten with the **remove** command:
 
-    **/templatecontrol arena remove <name>**
+    /arenacontrol arena remove <name>
 
 Templates are stored in the plugin's config.yml file.
 
@@ -112,7 +112,7 @@ droppers, hoppers and so forth.
 
 The command to copy a template to an arena is very simple:
 
-    **/arenacontrol assign <arena> <template>
+    /arenacontrol assign <arena> <template>
 
 - *arena* - A single word defining the arena. Case sensitive.
 - *template* - A single word defining the template. Case sensitive.
