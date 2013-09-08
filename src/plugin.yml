@@ -1,6 +1,6 @@
 name: ArenaControl
 main: net.SimplyCrafted.ArenaControl.ArenaControl
-version: 0.0.1
+version: 0.0.2
 author: Brian Ronald
 commands:
     arenacontrol:

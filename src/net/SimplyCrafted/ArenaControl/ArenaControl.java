@@ -105,6 +105,8 @@ public class ArenaControl extends JavaPlugin implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteractEvent (PlayerInteractEvent event) {
+        // Check whether the block still exists
+        if (event.getClickedBlock() == null) return;
         // Check the player did something to a sign
         if (!(event.getClickedBlock().getState() instanceof Sign)) return;
         // Check that that something was a right click
