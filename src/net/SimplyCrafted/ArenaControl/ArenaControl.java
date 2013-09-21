@@ -116,7 +116,7 @@ public class ArenaControl extends JavaPlugin implements Listener {
         // Check that this is *our* sign
         if (sign.getLine(0).equalsIgnoreCase("[ArenaControl]")) {
             // Check the player's permissions
-            if (event.getPlayer().hasPermission("ArenaControl.assign")) {
+            if (event.getPlayer().hasPermission("ArenaControl.apply")) {
                 // Assign the template on the third line to the
                 // arena on the second line
                 assignTemplateToArena(sign.getLine(1), sign.getLine(2), event.getPlayer());
