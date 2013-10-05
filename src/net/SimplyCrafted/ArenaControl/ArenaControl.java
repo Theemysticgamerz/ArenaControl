@@ -124,9 +124,9 @@ public class ArenaControl extends JavaPlugin implements Listener {
                 event.getPlayer().sendMessage("You don't have permission.");
                 return;
             }
+            event.setCancelled(true);
         }
         // Successful, so eat the event.
-        event.setCancelled(true);
     }
 
     // Define some strings. These are sub-commands.
