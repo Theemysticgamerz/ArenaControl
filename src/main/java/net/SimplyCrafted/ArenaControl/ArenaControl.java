@@ -1,6 +1,10 @@
 package net.SimplyCrafted.ArenaControl;
 
+import com.sk89q.worldedit.LocalPlayer;
 import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.sk89q.worldedit.bukkit.selections.Selection;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
@@ -29,14 +33,14 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class ArenaControl extends JavaPlugin implements Listener {
 
-    WorldEdit worldEdit;
+    WorldEditPlugin worldEdit;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
         getServer().getPluginManager().registerEvents(this, this);
         if (getServer().getPluginManager().isPluginEnabled("WorldEdit")) {
-            worldEdit = WorldEdit.getInstance();
+            worldEdit = (WorldEditPlugin) getServer().getPluginManager().getPlugin("WorldEdit");
         }
         if (worldEdit != null) {
             getLogger().info("WorldEdit detected - can use WorldEdit selection");
@@ -216,53 +220,30 @@ public class ArenaControl extends JavaPlugin implements Listener {
                             }
                             // Define a new arena
                             if (args.length >= 9) {
-                                Integer corner1X, corner1Y, corner1Z,
-                                        corner2X, corner2Y, corner2Z;
-                                try {
-                                    // Convert all the numeric arguments
-                                    corner1X = Integer.parseInt(args[3]);
-                                    corner1Y = Integer.parseInt(args[4]);
-                                    corner1Z = Integer.parseInt(args[5]);
-                                    corner2X = Integer.parseInt(args[6]);
-                                    corner2Y = Integer.parseInt(args[7]);
-                                    corner2Z = Integer.parseInt(args[8]);
-                                } catch (NumberFormatException exception) {
-                                    // One or more of the numeric arguments didn't parse
-                                    sender.sendMessage("Expecting the name, then six numbers: X Y Z for corner 1, X Y Z for corner 2");
-                                    sender.sendMessage("then (optionally) the world identifier (defaults to current world)");
-                                    sender.sendMessage("/arenacontrol " + cmd_arena + " " + cmd_define + " <name> X1 Y1 Z1 X2 Y2 Z2 [WorldID]");
-                                    // No useful input, so drop out of the command handler now.
-                                    return true;
-                                }
-                                // Now compare and sort the coordinates, so that we're using a consistent corner.
-                                // The lowest coordinate will be chosen as corner1, and the highest will be corner2.
-                                Integer temp;
-                                if (corner2X < corner1X) {temp = corner2X; corner2X = corner1X; corner1X = temp;}
-                                if (corner2Y < corner1Y) {temp = corner2Y; corner2Y = corner1Y; corner1Y = temp;}
-                                if (corner2Z < corner1Z) {temp = corner2Z; corner2Z = corner1Z; corner1Z = temp;}
-                                // Save this arena into the config
-                                getConfig().set("arenas." + args[2] + ".X1",corner1X);
-                                getConfig().set("arenas." + args[2] + ".Y1",corner1Y);
-                                getConfig().set("arenas." + args[2] + ".Z1",corner1Z);
-                                getConfig().set("arenas." + args[2] + ".X2",corner2X);
-                                getConfig().set("arenas." + args[2] + ".Y2",corner2Y);
-                                getConfig().set("arenas." + args[2] + ".Z2",corner2Z);
-                                if (args.length > 9) {
-                                    getConfig().set("arenas." + args[2] + ".world",args[9]);
-                                    sender.sendMessage("Arena \"" + args[2] + "\" defined from (X="+corner1X.toString()+",Y="+corner1Y.toString()+",Z="+corner1Z.toString()+
-                                    ") to (X="+corner2X.toString()+",Y="+corner2Y.toString()+",Z="+corner2Z.toString()+")");
-                                } else if (sender instanceof Player) {
-                                    getConfig().set("arenas." + args[2] + ".world",((Player) sender).getWorld().getName());
-                                    sender.sendMessage("Arena \"" + args[2] + "\" defined from (X="+corner1X.toString()+",Y="+corner1Y.toString()+",Z="+corner1Z.toString()+
-                                    ") to (X="+corner2X.toString()+",Y="+corner2Y.toString()+",Z="+corner2Z.toString()+")");
+                                String world = null;
+                                if (args.length == 9) {
+                                    if (sender instanceof Player) {
+                                        world = ((Player) sender).getWorld().getName();
+                                    }
                                 } else {
-                                    sender.sendMessage("You are not a player; you must specify a world ID.");
+                                    getLogger().info("" + args.length);
+                                    world = args[9];
                                 }
+                                if (defineArena(sender, args[2], args[3],args[4],args[5],args[6],args[7],args[8], world)) return true;
+                            } else if (args.length == 3 && sender instanceof Player && worldEdit != null && worldEdit.getSelection((Player) sender) != null) {
+                                Selection selection = worldEdit.getSelection((Player) sender);
+                                Location min = selection.getMinimumPoint();
+                                Location max = selection.getMaximumPoint();
+                                if (defineArena(sender, args[2], min.getBlockX(), min.getBlockY(), min.getBlockZ(), max.getBlockX(), max.getBlockY(), max.getBlockZ(), min.getWorld().getName())) return true;
                             } else {
                                 // Wrong number of arguments for definition of an arena
                                 sender.sendMessage("Expecting the name, then six numbers: X Y Z for corner 1, X Y Z for corner 2");
                                 sender.sendMessage("then (optionally) the world identifier (defaults to current world)");
                                 sender.sendMessage("/arenacontrol " + cmd_arena + " " + cmd_define + " <name> X1 Y1 Z1 X2 Y2 Z2 [WorldID]");
+                                if (worldEdit != null) {
+                                    sender.sendMessage("Additionally, since WorldEdit is loaded, you can select with the");
+                                    sender.sendMessage("WorldEdit wand and use /arenacontrol " + cmd_arena + " " + cmd_define + " <name>");
+                                }
                             }
                         } else if (args[1].equalsIgnoreCase(cmd_remove)) {
                             if (sender instanceof Player && !(sender.hasPermission("ArenaControl.modify"))) {
@@ -333,38 +314,30 @@ public class ArenaControl extends JavaPlugin implements Listener {
                             }
                             // Define a new template
                             if (args.length >= 6) {
-                                Integer corner1X, corner1Y, corner1Z;
-                                try {
-                                    // Convert all the numeric arguments
-                                    corner1X = Integer.parseInt(args[3]);
-                                    corner1Y = Integer.parseInt(args[4]);
-                                    corner1Z = Integer.parseInt(args[5]);
-                                } catch (NumberFormatException exception) {
-                                    // One or more of the numeric arguments didn't parse
-                                    sender.sendMessage("Expecting the name, then three numbers: X Y Z for the bottom corner");
-                                    sender.sendMessage("then (optionally) the world identifier (defaults to current world)");
-                                    sender.sendMessage("/arenacontrol " + cmd_template + " " + cmd_define + " <name> X Y Z [WorldID]");
-                                    // No useful input, so drop out of the command handler now.
-                                    return true;
-                                }
-                                // Save this template into the config
-                                getConfig().set("templates." + args[2] + ".X",corner1X);
-                                getConfig().set("templates." + args[2] + ".Y",corner1Y);
-                                getConfig().set("templates." + args[2] + ".Z",corner1Z);
-                                if (args.length > 6) {
-                                    getConfig().set("templates." + args[2] + ".world",args[6]);
-                                    sender.sendMessage("Template \"" + args[2] + "\" defined from (" + corner1X.toString() + "," + corner1Y.toString() + "," + corner1Z.toString() + ")");
-                                } else if (sender instanceof Player) {
-                                    getConfig().set("templates." + args[2] + ".world",((Player) sender).getWorld().getName());
-                                    sender.sendMessage("Template \"" + args[2] + "\" defined from (" + corner1X.toString() + "," + corner1Y.toString() + "," + corner1Z.toString() + ")");
+                                String world = null;
+                                if (args.length == 6) {
+                                    if (sender instanceof Player) {
+                                        world = ((Player) sender).getWorld().getName();
+                                    }
                                 } else {
-                                    sender.sendMessage("You are not a player; you must specify a world ID.");
+                                    getLogger().info("" + args.length);
+                                    world = args[6];
                                 }
+                                if (defineTemplate(sender, args[2], args[3], args[4], args[5], world)) return true;
+                            } else if (args.length == 3 && sender instanceof Player && worldEdit != null && worldEdit.getSelection((Player) sender) != null) {
+                                Selection selection = worldEdit.getSelection((Player) sender);
+                                Location min = selection.getMinimumPoint();
+                                if (defineTemplate(sender, args[2], min.getBlockX(), min.getBlockY(), min.getBlockZ(), min.getWorld().getName()))
+                                    return true;
                             } else {
                                 // Wrong number of arguments for definition of a template
                                 sender.sendMessage("Expecting the name, then three numbers: X Y Z for the bottom corner");
                                 sender.sendMessage("then (optionally) the world identifier (defaults to current world)");
                                 sender.sendMessage("/arenacontrol " + cmd_template + " " + cmd_define + " <name> X Y Z [WorldID]");
+                                if (worldEdit != null) {
+                                    sender.sendMessage("Additionally, since WorldEdit is loaded, you can select with the");
+                                    sender.sendMessage("WorldEdit wand and use /arenacontrol " + cmd_template + " " + cmd_define + " <name>");
+                                }
                             }
                         } else if (args[1].equalsIgnoreCase(cmd_remove)) {
                             if (sender instanceof Player && !(sender.hasPermission("ArenaControl.modify"))) {
@@ -394,6 +367,102 @@ public class ArenaControl extends JavaPlugin implements Listener {
                 }
                 return true;
             }
+        }
+        return false;
+    }
+
+    private boolean defineTemplate(CommandSender sender, String name, String X, String Y, String Z, String world) {
+        Integer corner1X, corner1Y, corner1Z;
+        try {
+            // Convert all the numeric arguments
+            corner1X = Integer.parseInt(X);
+            corner1Y = Integer.parseInt(Y);
+            corner1Z = Integer.parseInt(Z);
+        } catch (NumberFormatException exception) {
+            // One or more of the numeric arguments didn't parse
+            sender.sendMessage("Expecting the name, then three numbers: X Y Z for the bottom corner");
+            sender.sendMessage("then (optionally) the world identifier (defaults to current world)");
+            sender.sendMessage("/arenacontrol " + cmd_template + " " + cmd_define + " <name> X Y Z [WorldID]");
+            // No useful input, so drop out of the command handler now.
+            return true;
+        }
+        return defineTemplate(sender, name, corner1X, corner1Y, corner1Z, world);
+    }
+    private boolean defineTemplate(CommandSender sender, String name, Integer corner1X, Integer corner1Y, Integer corner1Z, String world) {
+        // Save this template into the config
+        getConfig().set("templates." + name + ".X",corner1X);
+        getConfig().set("templates." + name +  ".Y",corner1Y);
+        getConfig().set("templates." + name + ".Z",corner1Z);
+        if (world != null) {
+            getConfig().set("templates." + name  + ".world",world);
+            sender.sendMessage("Template \"" + name + "\" defined from (" + corner1X.toString() + "," + corner1Y.toString() + "," + corner1Z.toString() + ")");
+        } else if (sender instanceof Player) {
+            getConfig().set("templates." + name + ".world",((Player) sender).getWorld().getName());
+            sender.sendMessage("Template \"" + name + "\" defined from (" + corner1X.toString() + "," + corner1Y.toString() + "," + corner1Z.toString() + ")");
+        } else {
+            sender.sendMessage("You are not a player; you must specify a world ID.");
+        }
+        return false;
+    }
+
+    private boolean defineArena(CommandSender sender, String name, String minX, String minY, String minZ, String maxX, String maxY, String maxZ, String world) {
+        Integer corner1X, corner1Y, corner1Z,
+                corner2X, corner2Y, corner2Z;
+        try {
+            // Convert all the numeric arguments
+            corner1X = Integer.parseInt(minX);
+            corner1Y = Integer.parseInt(minY);
+            corner1Z = Integer.parseInt(minZ);
+            corner2X = Integer.parseInt(maxX);
+            corner2Y = Integer.parseInt(maxY);
+            corner2Z = Integer.parseInt(maxZ);
+        } catch (NumberFormatException exception) {
+            // One or more of the numeric arguments didn't parse
+            sender.sendMessage("Expecting the name, then six numbers: X Y Z for corner 1, X Y Z for corner 2");
+            sender.sendMessage("then (optionally) the world identifier (defaults to current world)");
+            sender.sendMessage("/arenacontrol " + cmd_arena + " " + cmd_define + " <name> X1 Y1 Z1 X2 Y2 Z2 [WorldID]");
+            // No useful input, so drop out of the command handler now.
+            return true;
+        }
+        // Now compare and sort the coordinates, so that we're using a consistent corner.
+        // The lowest coordinate will be chosen as corner1, and the highest will be corner2.
+        Integer temp;
+        if (corner2X < corner1X) {
+            temp = corner2X;
+            corner2X = corner1X;
+            corner1X = temp;
+        }
+        if (corner2Y < corner1Y) {
+            temp = corner2Y;
+            corner2Y = corner1Y;
+            corner1Y = temp;
+        }
+        if (corner2Z < corner1Z) {
+            temp = corner2Z;
+            corner2Z = corner1Z;
+            corner1Z = temp;
+        }
+        return defineArena(sender, name, corner1X, corner1Y, corner1Z, corner2X, corner2Y, corner2Z, world);
+    }
+
+    private boolean defineArena(CommandSender sender, String name, Integer corner1X, Integer corner1Y, Integer corner1Z, Integer corner2X, Integer corner2Y, Integer corner2Z, String world) {
+        // Save this arena into the config
+        getConfig().set("arenas." + name + ".X1", corner1X);
+        getConfig().set("arenas." + name + ".Y1", corner1Y);
+        getConfig().set("arenas." + name + ".Z1", corner1Z);
+        getConfig().set("arenas." + name + ".X2", corner2X);
+        getConfig().set("arenas." + name + ".Y2", corner2Y);
+        getConfig().set("arenas." + name + ".Z2", corner2Z);
+        if (world != null) {
+            getConfig().set("arenas." + name + ".world", world);
+            sender.sendMessage("Arena \"" + name + "\" defined from (X=" + corner1X.toString() + ",Y=" + corner1Y.toString() + ",Z=" + corner1Z.toString() +
+                    ") to (X=" + corner2X.toString() + ",Y=" + corner2Y.toString() + ",Z=" + corner2Z.toString() + ")");
+        } else if (sender instanceof Player) {
+            getConfig().set("arenas." + name + ".world", ((Player) sender).getWorld().getName());
+            sender.sendMessage("Arena \"" + name + "\" defined from (X=" + corner1X.toString() + ",Y=" + corner1Y.toString() + ",Z=" + corner1Z.toString() +
+                    ") to (X=" + corner2X.toString() + ",Y=" + corner2Y.toString() + ",Z=" + corner2Z.toString() + ")");
+        } else {
+            sender.sendMessage("You are not a player; you must specify a world ID.");
         }
         return false;
     }
