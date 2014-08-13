@@ -1,5 +1,6 @@
 package net.SimplyCrafted.ArenaControl;
 
+import com.sk89q.worldedit.WorldEdit;
 import org.bukkit.World;
 import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
@@ -28,10 +29,20 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class ArenaControl extends JavaPlugin implements Listener {
 
+    WorldEdit worldEdit;
+
     @Override
     public void onEnable() {
         saveDefaultConfig();
         getServer().getPluginManager().registerEvents(this, this);
+        if (getServer().getPluginManager().isPluginEnabled("WorldEdit")) {
+            worldEdit = WorldEdit.getInstance();
+        }
+        if (worldEdit != null) {
+            getLogger().info("WorldEdit detected - can use WorldEdit selection");
+        } else {
+            getLogger().info("WorldEdit not detected - no selection tool available");
+        }
     }
 
     @Override

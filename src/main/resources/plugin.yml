@@ -2,6 +2,7 @@ name: ${project.name}
 main: net.SimplyCrafted.ArenaControl.ArenaControl
 version: ${project.version}
 author: Brian Ronald
+softdepend: [WorldEdit]
 commands:
     arenacontrol:
         description: Controls arena floors by template
