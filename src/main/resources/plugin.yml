@@ -1,6 +1,6 @@
-name: ArenaControl
+name: ${project.name}
 main: net.SimplyCrafted.ArenaControl.ArenaControl
-version: 0.0.4
+version: ${project.version}
 author: Brian Ronald
 commands:
     arenacontrol:
