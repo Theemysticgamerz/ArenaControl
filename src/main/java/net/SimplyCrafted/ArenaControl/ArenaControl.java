@@ -57,12 +57,12 @@ public class ArenaControl extends JavaPlugin implements Listener {
     }
 
     private void assignTemplateToArena(String arena, String template, CommandSender sender) {
-        int ArenaX1, ArenaY1, ArenaZ1;
-        int ArenaX2, ArenaY2, ArenaZ2;
+        int arenaX1, arenaY1, arenaZ1;
+        int arenaX2, arenaY2, arenaZ2;
         boolean templateMode = true;
-        int TemplateX1, TemplateY1, TemplateZ1;
-        int OffsetX, OffsetY, OffsetZ;
-        World TemplateWorld, ArenaWorld;
+        int templateX1, templateY1, templateZ1;
+        int offsetX, offsetY, offsetZ;
+        World templateWorld, arenaWorld;
 
         // Sanity checking - make sure the arena exists by looking for its X1
         if (getConfig().getString("arenas." + arena + ".X1") == null) {
@@ -80,44 +80,44 @@ public class ArenaControl extends JavaPlugin implements Listener {
         }
 
         // Populate local variables
-        ArenaX1 = getConfig().getInt("arenas." + arena + ".X1");
-        ArenaY1 = getConfig().getInt("arenas." + arena + ".Y1");
-        ArenaZ1 = getConfig().getInt("arenas." + arena + ".Z1");
-        ArenaX2 = getConfig().getInt("arenas." + arena + ".X2");
-        ArenaY2 = getConfig().getInt("arenas." + arena + ".Y2");
-        ArenaZ2 = getConfig().getInt("arenas." + arena + ".Z2");
-        ArenaWorld = getServer().getWorld(getConfig().getString("arenas." + arena + ".world"));
+        arenaX1 = getConfig().getInt("arenas." + arena + ".X1");
+        arenaY1 = getConfig().getInt("arenas." + arena + ".Y1");
+        arenaZ1 = getConfig().getInt("arenas." + arena + ".Z1");
+        arenaX2 = getConfig().getInt("arenas." + arena + ".X2");
+        arenaY2 = getConfig().getInt("arenas." + arena + ".Y2");
+        arenaZ2 = getConfig().getInt("arenas." + arena + ".Z2");
+        arenaWorld = getServer().getWorld(getConfig().getString("arenas." + arena + ".world"));
         if (templateMode) {
-            TemplateX1 = getConfig().getInt("templates." + template + ".X");
-            TemplateY1 = getConfig().getInt("templates." + template + ".Y");
-            TemplateZ1 = getConfig().getInt("templates." + template + ".Z");
+            templateX1 = getConfig().getInt("templates." + template + ".X");
+            templateY1 = getConfig().getInt("templates." + template + ".Y");
+            templateZ1 = getConfig().getInt("templates." + template + ".Z");
             // Set the opposite corner of the template using the dimensions of the arena
-            OffsetX = TemplateX1 - ArenaX1;
-            OffsetY = TemplateY1 - ArenaY1;
-            OffsetZ = TemplateZ1 - ArenaZ1;
-            TemplateWorld = getServer().getWorld(getConfig().getString("templates." + template + ".world"));
+            offsetX = templateX1 - arenaX1;
+            offsetY = templateY1 - arenaY1;
+            offsetZ = templateZ1 - arenaZ1;
+            templateWorld = getServer().getWorld(getConfig().getString("templates." + template + ".world"));
 
             // Copy the opaque blocks from the template to the arena, block by block.
             int BlockType;
             byte BlockData;
-            for (int iZ = ArenaZ1; iZ <= ArenaZ2; iZ++) {
-                for (int iY = ArenaY1; iY <= ArenaY2; iY++) {
-                    for (int iX = ArenaX1; iX <= ArenaX2; iX++) {
-                        if (!(TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getType().isTransparent())) {
-                            BlockType = TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getTypeId();
-                            BlockData = TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getData();
-                            ArenaWorld.getBlockAt(iX, iY, iZ).setTypeIdAndData(BlockType, BlockData, false);
+            for (int iZ = arenaZ1; iZ <= arenaZ2; iZ++) {
+                for (int iY = arenaY1; iY <= arenaY2; iY++) {
+                    for (int iX = arenaX1; iX <= arenaX2; iX++) {
+                        if (!(templateWorld.getBlockAt(iX + offsetX, iY + offsetY, iZ + offsetZ).getType().isTransparent())) {
+                            BlockType = templateWorld.getBlockAt(iX + offsetX, iY + offsetY, iZ + offsetZ).getTypeId();
+                            BlockData = templateWorld.getBlockAt(iX + offsetX, iY + offsetY, iZ + offsetZ).getData();
+                            arenaWorld.getBlockAt(iX, iY, iZ).setTypeIdAndData(BlockType, BlockData, false);
                         }
                     }
                 }
             }
             // Re-copy the entire template to the arena, block by block.
-            for (int iZ = ArenaZ1; iZ <= ArenaZ2; iZ++) {
-                for (int iY = ArenaY1; iY <= ArenaY2; iY++) {
-                    for (int iX = ArenaX1; iX <= ArenaX2; iX++) {
-                        BlockType = TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getTypeId();
-                        BlockData = TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getData();
-                        ArenaWorld.getBlockAt(iX, iY, iZ).setTypeIdAndData(BlockType, BlockData, false);
+            for (int iZ = arenaZ1; iZ <= arenaZ2; iZ++) {
+                for (int iY = arenaY1; iY <= arenaY2; iY++) {
+                    for (int iX = arenaX1; iX <= arenaX2; iX++) {
+                        BlockType = templateWorld.getBlockAt(iX + offsetX, iY + offsetY, iZ + offsetZ).getTypeId();
+                        BlockData = templateWorld.getBlockAt(iX + offsetX, iY + offsetY, iZ + offsetZ).getData();
+                        arenaWorld.getBlockAt(iX, iY, iZ).setTypeIdAndData(BlockType, BlockData, false);
                     }
                 }
             }
@@ -125,10 +125,10 @@ public class ArenaControl extends JavaPlugin implements Listener {
             sender.sendMessage("Template " + template + " has been copied to arena " + arena);
         } else {
             Material material = Material.getMaterial(template);
-            for (int iZ = ArenaZ1; iZ <= ArenaZ2; iZ++) {
-                for (int iY = ArenaY1; iY <= ArenaY2; iY++) {
-                    for (int iX = ArenaX1; iX <= ArenaX2; iX++) {
-                        ArenaWorld.getBlockAt(iX, iY, iZ).setType(material);
+            for (int iZ = arenaZ1; iZ <= arenaZ2; iZ++) {
+                for (int iY = arenaY1; iY <= arenaY2; iY++) {
+                    for (int iX = arenaX1; iX <= arenaX2; iX++) {
+                        arenaWorld.getBlockAt(iX, iY, iZ).setType(material);
                     }
                 }
             }
