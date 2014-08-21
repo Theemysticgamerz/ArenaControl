@@ -201,7 +201,7 @@ public class ArenaControl extends JavaPlugin implements Listener {
                     /* * * ARENACONTROL ASSIGN * * */
 
                     // Permission check
-                    if (sender instanceof Player && !(sender.hasPermission("ArenaControl.apply"))) {
+                    if (sender instanceof Player && !(sender.hasPermission("ArenaControl.modify"))) {
                         sender.sendMessage("You do not have permission to run this command");
                         return true;
                     }
@@ -219,7 +219,7 @@ public class ArenaControl extends JavaPlugin implements Listener {
                     // Define, remove or list arena
                     if(args.length > 1) {
                         if (args[1].equalsIgnoreCase(cmd_list)) {
-                            if (sender instanceof Player && !(sender.hasPermission("ArenaControl.apply"))) {
+                            if (sender instanceof Player && !(sender.hasPermission("ArenaControl.modify"))) {
                                 sender.sendMessage("You do not have permission to run this command");
                                 return true;
                             }
@@ -317,7 +317,7 @@ public class ArenaControl extends JavaPlugin implements Listener {
                     // Define, remove or list template
                     if(args.length > 1) {
                         if (args[1].equalsIgnoreCase(cmd_list)) {
-                            if (sender instanceof Player && !(sender.hasPermission("ArenaControl.apply"))) {
+                            if (sender instanceof Player && !(sender.hasPermission("ArenaControl.modify"))) {
                                 sender.sendMessage("You do not have permission to run this command");
                                 return true;
                             }
