@@ -59,6 +59,7 @@ public class ArenaControl extends JavaPlugin implements Listener {
     private void assignTemplateToArena(String arena, String template, CommandSender sender) {
         int ArenaX1, ArenaY1, ArenaZ1;
         int ArenaX2, ArenaY2, ArenaZ2;
+        boolean templateMode = true;
         int TemplateX1, TemplateY1, TemplateZ1;
         int OffsetX, OffsetY, OffsetZ;
         World TemplateWorld, ArenaWorld;
@@ -70,8 +71,12 @@ public class ArenaControl extends JavaPlugin implements Listener {
         }
         // Sanity checking - make sure the template exists by looking for its X
         if (getConfig().getString("templates." + template + ".X") == null) {
-            sender.sendMessage("Template " + template + " is not defined");
-            return;
+            if (Material.getMaterial(template) == null) {
+                sender.sendMessage("Template/material " + template + " is not defined");
+                return;
+            } else {
+                templateMode = false;
+            }
         }
 
         // Populate local variables
@@ -81,42 +86,53 @@ public class ArenaControl extends JavaPlugin implements Listener {
         ArenaX2 = getConfig().getInt("arenas." + arena + ".X2");
         ArenaY2 = getConfig().getInt("arenas." + arena + ".Y2");
         ArenaZ2 = getConfig().getInt("arenas." + arena + ".Z2");
-        TemplateX1 = getConfig().getInt("templates." + template + ".X");
-        TemplateY1 = getConfig().getInt("templates." + template + ".Y");
-        TemplateZ1 = getConfig().getInt("templates." + template + ".Z");
-        // Set the opposite corner of the template using the dimensions of the arena
-        OffsetX = TemplateX1 - ArenaX1;
-        OffsetY = TemplateY1 - ArenaY1;
-        OffsetZ = TemplateZ1 - ArenaZ1;
         ArenaWorld = getServer().getWorld(getConfig().getString("arenas." + arena + ".world"));
-        TemplateWorld = getServer().getWorld(getConfig().getString("templates." + template + ".world"));
+        if (templateMode) {
+            TemplateX1 = getConfig().getInt("templates." + template + ".X");
+            TemplateY1 = getConfig().getInt("templates." + template + ".Y");
+            TemplateZ1 = getConfig().getInt("templates." + template + ".Z");
+            // Set the opposite corner of the template using the dimensions of the arena
+            OffsetX = TemplateX1 - ArenaX1;
+            OffsetY = TemplateY1 - ArenaY1;
+            OffsetZ = TemplateZ1 - ArenaZ1;
+            TemplateWorld = getServer().getWorld(getConfig().getString("templates." + template + ".world"));
 
-        // Copy the opaque blocks from the template to the arena, block by block.
-        int BlockType;
-        byte BlockData;
-        for (int iZ=ArenaZ1; iZ <= ArenaZ2; iZ++) {
-            for (int iY=ArenaY1; iY <= ArenaY2; iY++) {
-                for (int iX=ArenaX1; iX <= ArenaX2; iX++) {
-                    if (!(TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getType().isTransparent())) {
+            // Copy the opaque blocks from the template to the arena, block by block.
+            int BlockType;
+            byte BlockData;
+            for (int iZ = ArenaZ1; iZ <= ArenaZ2; iZ++) {
+                for (int iY = ArenaY1; iY <= ArenaY2; iY++) {
+                    for (int iX = ArenaX1; iX <= ArenaX2; iX++) {
+                        if (!(TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getType().isTransparent())) {
+                            BlockType = TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getTypeId();
+                            BlockData = TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getData();
+                            ArenaWorld.getBlockAt(iX, iY, iZ).setTypeIdAndData(BlockType, BlockData, false);
+                        }
+                    }
+                }
+            }
+            // Re-copy the entire template to the arena, block by block.
+            for (int iZ = ArenaZ1; iZ <= ArenaZ2; iZ++) {
+                for (int iY = ArenaY1; iY <= ArenaY2; iY++) {
+                    for (int iX = ArenaX1; iX <= ArenaX2; iX++) {
                         BlockType = TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getTypeId();
                         BlockData = TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getData();
-                        ArenaWorld.getBlockAt(iX,iY,iZ).setTypeIdAndData(BlockType,BlockData,false);
+                        ArenaWorld.getBlockAt(iX, iY, iZ).setTypeIdAndData(BlockType, BlockData, false);
+                    }
+                }
+            }
+            // Message to confirm that
+            sender.sendMessage("Template " + template + " has been copied to arena " + arena);
+        } else {
+            Material material = Material.getMaterial(template);
+            for (int iZ = ArenaZ1; iZ <= ArenaZ2; iZ++) {
+                for (int iY = ArenaY1; iY <= ArenaY2; iY++) {
+                    for (int iX = ArenaX1; iX <= ArenaX2; iX++) {
+                        ArenaWorld.getBlockAt(iX, iY, iZ).setType(material);
                     }
                 }
             }
         }
-        // Re-copy the entire template to the arena, block by block.
-        for (int iZ=ArenaZ1; iZ <= ArenaZ2; iZ++) {
-            for (int iY=ArenaY1; iY <= ArenaY2; iY++) {
-                for (int iX=ArenaX1; iX <= ArenaX2; iX++) {
-                    BlockType = TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getTypeId();
-                    BlockData = TemplateWorld.getBlockAt(iX + OffsetX, iY + OffsetY, iZ + OffsetZ).getData();
-                    ArenaWorld.getBlockAt(iX,iY,iZ).setTypeIdAndData(BlockType,BlockData,false);
-                }
-            }
-        }
-        // Message to confirm that
-        sender.sendMessage("Template " + template + " has been copied to arena " + arena);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -155,9 +171,9 @@ public class ArenaControl extends JavaPlugin implements Listener {
                     // The name wasn't that of a defined arena
                     event.getPlayer().sendMessage("Arena " + event.getLine(1) + " not found");
                     event.setLine(0, "§4[ArenaCtrl]");
-                } else if (getConfig().getString("templates." + event.getLine(2) + ".X") == null) {
+                } else if ((getConfig().getString("templates." + event.getLine(2) + ".X") == null) && Material.getMaterial(event.getLine(2)) == null) {
                     // The name wasn't that of a defined arena
-                    event.getPlayer().sendMessage("Template " + event.getLine(2) + " not found");
+                    event.getPlayer().sendMessage("Template/material " + event.getLine(2) + " not found");
                     event.setLine(0, "§4[ArenaCtrl]");
                 } else {
                     event.setLine(0, "§a[ArenaCtrl]");
