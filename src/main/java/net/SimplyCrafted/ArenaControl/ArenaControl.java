@@ -3,6 +3,7 @@ package net.SimplyCrafted.ArenaControl;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
@@ -12,6 +13,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -126,20 +129,59 @@ public class ArenaControl extends JavaPlugin implements Listener {
         if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK)) return;
 
         Sign sign = (Sign) event.getClickedBlock().getState();
-        // Check that this is *our* sign
-        if (sign.getLine(0).equalsIgnoreCase("[ArenaControl]")) {
-            // Check the player's permissions
-            if (event.getPlayer().hasPermission("ArenaControl.apply")) {
-                // Assign the template on the third line to the
-                // arena on the second line
-                assignTemplateToArena(sign.getLine(1), sign.getLine(2), event.getPlayer());
-            } else {
-                event.getPlayer().sendMessage("You don't have permission.");
-                return;
-            }
+        // Check that this is one of *our* signs, and check permissions
+        if ((sign.getLine(0).equalsIgnoreCase("§a[ArenaCtrl]") && event.getPlayer().hasPermission("ArenaControl.apply")) ||
+                (sign.getLine(0).equalsIgnoreCase("§a[ArenaLock]") && event.getPlayer().hasPermission("ArenaControl.modify"))) {
+            // Assign the template on the third line to the
+            // arena on the second line
+            assignTemplateToArena(sign.getLine(1), sign.getLine(2), event.getPlayer());
+            // Successful, so eat the event.
             event.setCancelled(true);
         }
-        // Successful, so eat the event.
+    }
+
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onSignChangeEvent (SignChangeEvent event) {
+        if (event.isCancelled()) {
+            return;
+        }
+        if (event.getLine(0).equalsIgnoreCase("[ArenaCtrl]") || event.getLine(0).equalsIgnoreCase("§a[ArenaControl]")) {
+            if (!event.getPlayer().hasPermission("ArenaControl.modify")) {
+                event.setLine(0,"§4[ArenaCtrl]");
+                event.getPlayer().sendMessage("No permission to create an ArenaControl sign");
+            } else {
+                if (getConfig().getString("arenas." + event.getLine(1) + ".X1") == null) {
+                    // The name wasn't that of a defined arena
+                    event.getPlayer().sendMessage("Arena " + event.getLine(1) + " not found");
+                    event.setLine(0, "§4[ArenaCtrl]");
+                } else if (getConfig().getString("templates." + event.getLine(2) + ".X") == null) {
+                    // The name wasn't that of a defined arena
+                    event.getPlayer().sendMessage("Template " + event.getLine(2) + " not found");
+                    event.setLine(0, "§4[ArenaCtrl]");
+                } else {
+                    event.setLine(0, "§a[ArenaCtrl]");
+                }
+            }
+        }
+        if (event.getLine(0).equalsIgnoreCase("[ArenaLock]") || event.getLine(0).equalsIgnoreCase("§a[ArenaLocked]")) {
+            if (!event.getPlayer().hasPermission("ArenaControl.modify")) {
+                event.setLine(0, "§4[ArenaLock]");
+                event.getPlayer().sendMessage("No permission to create a locked ArenaControl sign");
+            } else {
+                if (getConfig().getString("arenas." + event.getLine(1) + ".X1") == null) {
+                    // The name wasn't that of a defined arena
+                    event.getPlayer().sendMessage("Arena " + event.getLine(1) + " not found");
+                    event.setLine(0,"§4[ArenaLock]");
+                } else if (getConfig().getString("templates." + event.getLine(2) + ".X") == null) {
+                    // The name wasn't that of a defined arena
+                    event.getPlayer().sendMessage("Template " + event.getLine(2) + " not found");
+                    event.setLine(0, "§4[ArenaLock]");
+                } else {
+                    event.setLine(0,"§a[ArenaLock]");
+                }
+            }
+        }
     }
 
     // Define some strings. These are sub-commands.

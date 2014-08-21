@@ -123,10 +123,12 @@ A sign can be used instead of typing in the command. Once the sign has been plac
 a right-click by a player with the **ArenaControl.apply** permission will cause
 the arena specified on the second line of the sign to be populated with blocks
 copied form the template specified on the third line of the sign. The sign must
-have three lines.
+have three lines. Only players with the ability to assign an arena can build such
+a sign.
 
-The first line must be the literal string, **[ArenaControl]**. This is not case
-sensitive, but must include the square brackets.
+The first line must be the literal string, **[ArenaCtrl]**. This is not case
+sensitive, but must include the square brackets. *Note that this has changed
+from previous versions!*
 
 The second line must contain only the name of an arena. This is case sensitive.
 
@@ -137,7 +139,12 @@ The fourth line is ignored, and may contain any arbitrary text.
 An example, for a spleef arena called *spleef1* using a template of snow blocks
 named *flatsnow*:
 
-    [ArenaControl]
+    [ArenaCtrl]
        spleef1
       flatsnow
     Reset spleef!
+
+The first line of the sign will be coloured green if valid, red if invalid.
+
+In addition to **[ArenaCtrl]** is **[ArenaLock]**, which acts the same but can
+only be placed or operated by somebody with **ArenaControl.modify** permissions.  
