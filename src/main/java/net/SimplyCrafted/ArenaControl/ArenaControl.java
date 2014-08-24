@@ -162,7 +162,7 @@ public class ArenaControl extends JavaPlugin implements Listener {
         if (event.isCancelled()) {
             return;
         }
-        if (event.getLine(0).equalsIgnoreCase("[ArenaCtrl]") || event.getLine(0).equalsIgnoreCase("§a[ArenaControl]")) {
+        if (event.getLine(0).equalsIgnoreCase("[ArenaCtrl]") || event.getLine(0).equalsIgnoreCase("§a[ArenaControl]") || event.getLine(0).equalsIgnoreCase("&a[ArenaControl]")) {
             if (!event.getPlayer().hasPermission("ArenaControl.modify")) {
                 event.setLine(0,"§4[ArenaCtrl]");
                 event.getPlayer().sendMessage("No permission to create an ArenaControl sign");
@@ -180,7 +180,7 @@ public class ArenaControl extends JavaPlugin implements Listener {
                 }
             }
         }
-        if (event.getLine(0).equalsIgnoreCase("[ArenaLock]") || event.getLine(0).equalsIgnoreCase("§a[ArenaLocked]")) {
+        if (event.getLine(0).equalsIgnoreCase("[ArenaLock]") || event.getLine(0).equalsIgnoreCase("§a[ArenaLocked]") || event.getLine(0).equalsIgnoreCase("&a[ArenaLocked]")) {
             if (!event.getPlayer().hasPermission("ArenaControl.modify")) {
                 event.setLine(0, "§4[ArenaLock]");
                 event.getPlayer().sendMessage("No permission to create a locked ArenaControl sign");
