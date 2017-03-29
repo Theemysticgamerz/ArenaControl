@@ -13,7 +13,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -98,15 +97,16 @@ public class ArenaControl extends JavaPlugin implements Listener {
             templateWorld = getServer().getWorld(getConfig().getString("templates." + template + ".world"));
 
             // Copy the opaque blocks from the template to the arena, block by block.
-            int BlockType;
+            Material BlockType;
             byte BlockData;
             for (int iZ = arenaZ1; iZ <= arenaZ2; iZ++) {
                 for (int iY = arenaY1; iY <= arenaY2; iY++) {
                     for (int iX = arenaX1; iX <= arenaX2; iX++) {
                         if (!(templateWorld.getBlockAt(iX + offsetX, iY + offsetY, iZ + offsetZ).getType().isTransparent())) {
-                            BlockType = templateWorld.getBlockAt(iX + offsetX, iY + offsetY, iZ + offsetZ).getTypeId();
+                            BlockType = templateWorld.getBlockAt(iX + offsetX, iY + offsetY, iZ + offsetZ).getType();
                             BlockData = templateWorld.getBlockAt(iX + offsetX, iY + offsetY, iZ + offsetZ).getData();
-                            arenaWorld.getBlockAt(iX, iY, iZ).setTypeIdAndData(BlockType, BlockData, false);
+                            arenaWorld.getBlockAt(iX, iY, iZ).setType(BlockType, false);
+                            arenaWorld.getBlockAt(iX, iY, iZ).setData(BlockData, false);
                         }
                     }
                 }
@@ -115,9 +115,10 @@ public class ArenaControl extends JavaPlugin implements Listener {
             for (int iZ = arenaZ1; iZ <= arenaZ2; iZ++) {
                 for (int iY = arenaY1; iY <= arenaY2; iY++) {
                     for (int iX = arenaX1; iX <= arenaX2; iX++) {
-                        BlockType = templateWorld.getBlockAt(iX + offsetX, iY + offsetY, iZ + offsetZ).getTypeId();
+                        BlockType = templateWorld.getBlockAt(iX + offsetX, iY + offsetY, iZ + offsetZ).getType();
                         BlockData = templateWorld.getBlockAt(iX + offsetX, iY + offsetY, iZ + offsetZ).getData();
-                        arenaWorld.getBlockAt(iX, iY, iZ).setTypeIdAndData(BlockType, BlockData, false);
+                        arenaWorld.getBlockAt(iX, iY, iZ).setType(BlockType, false);
+                        arenaWorld.getBlockAt(iX, iY, iZ).setData(BlockData,false);
                     }
                 }
             }
